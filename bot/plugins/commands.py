@@ -17,8 +17,7 @@ db = Database()
 
 @Client.on_message(filters.command(["start"]) & filters.private, group=1)
 async def start(bot, update):
-    update_channel = UPDATE_CHANNEL
-    if update_channel:
+    if update_channel := UPDATE_CHANNEL:
         try:
             user = await bot.get_chat_member(update_channel, update.chat.id)
             if user.status == "kicked out":
@@ -35,22 +34,27 @@ async def start(bot, update):
             return
         except Exception:
             await update.reply_text(f"<b>This bot should be the admin on your update channel</b>\n\n<b>💢 ഈ ചാനലിൽ  @{UPDATE_CHANNEL} ബോട്ടിനെ അഡ്മിൻ ആക്. എന്നിട്ട് /start കൊടുക്</b>\n\n<b>🗣️ any Doubt @Mo_Tech_Group</b>")
-            return  
+            return
     try:
         file_uid = update.command[1]
     except IndexError:
         file_uid = False
-    
+
     if file_uid:
         file_id, file_name, file_caption, file_type = await db.get_file(file_uid)
-        
-        if (file_id or file_type) == None:
+
+        if ((file_id or file_type)) is None:
             return
-        
-        caption = file_caption if file_caption != ("" or None) else ("<code>" + file_name + "</code>")
-        
+
+        caption = (
+            file_caption
+            if file_caption != ("" or None)
+            else f"<code>{file_name}</code>"
+        )
+
+
         if file_type == "document":
-        
+
             await bot.send_document(
                 chat_id=update.chat.id,
                 document = file_id,
@@ -76,7 +80,7 @@ async def start(bot, update):
             )
 
         elif file_type == "video":
-        
+
             await update.bot.send_video(
                 chat_id=update.chat.id,
                 video = file_id,
@@ -93,9 +97,9 @@ async def start(bot, update):
                     ]
                 )
             )
-            
+
         elif file_type == "audio":
-        
+
             await update.bot.send_audio(
                 chat_id=update.chat.id,
                 audio = file_id,
@@ -115,7 +119,7 @@ async def start(bot, update):
 
         else:
             print(file_type)
-        
+
         return
 
     buttons = [[
@@ -127,9 +131,9 @@ async def start(bot, update):
     ],[
         InlineKeyboardButton('🖥️ Tutorial Video 🖥️', url='https://youtu.be/OTqZmADyOjU')
     ]]
-    
+
     reply_markup = InlineKeyboardMarkup(buttons)
-    
+
     await bot.send_message(
         chat_id=update.chat.id,
         text=Translation.START_TEXT.format(
